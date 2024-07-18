@@ -1,0 +1,109 @@
+:root {
+    --lm-dark-color: #212121;
+    --lm-light-color: #ebebeb;
+
+    --lm-title-font: 'Bebas Neue', sans-serif;
+    --lm-subtitle-font: 'Fira Sans', sans-serif;
+    --lm-heading-font: 'Bebas Neue', sans-serif;
+    --lm-body-font: 'Roboto', sans-serif;
+}
+
+/* #region Element Overrides */
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+    font-family: var(--lm-heading-font);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--lm-title-color);
+    letter-spacing: .1rem;
+}
+
+a {
+    color: var(--cf-theme-500);
+}
+
+a:hover {
+    color: var(--cf-theme-400);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--cf-theme-700);
+    --bs-btn-border-color: var(--cf-theme-600);
+    --bs-btn-hover-bg: var(--cf-theme-700);
+    --bs-btn-hover-border-color: var(--cf-theme-700);
+}
+/* #endregion Element Overrides */
+
+/* #region Main Template */
+body, html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+/* #endregion Main Template */
+
+.mainTitle {
+    font-family: var(--lm-title-font);
+    font-size: 3rem;
+    line-height: 4rem;
+}
+
+.subTitle {
+    font-family: var(--lm-subtitle-font);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: 0.2rem;
+}
+
+.descText {
+    font-family: var(--lm-body-font);
+    font-size: 1rem;
+    line-height: 1.1;
+    font-weight: 400;
+    letter-spacing: 0.0rem;
+}
+
+.techStack i {
+    font-size: 2rem;
+}
+
+body {
+    color: var(--lm-dark-color);
+    background: #ECE9E6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #FFFFFF, #ECE9E6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #FFFFFF, #ECE9E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
+
+nav {
+    background-color: var(--cf-theme-900);
+}
+
+.app-logo {
+    max-width: 300px;
+}
+
+footer {
+    color: var(--lm-light-color);
+    background-color: var(--cf-theme-900);
+    
+}
+
+footer i {
+    font-size: 2rem;
+}
+
+footer i:hover {
+    color: var(--cf-theme-300);
+}
