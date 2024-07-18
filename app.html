@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>App Name Coding Challenge by Luke Matulis</title>
+    <title>Movie Magic: Built by Luke Matulis</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -43,7 +43,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="/index.html">
                     <img src="/img/myLogos/logo-light.png" width="40" alt="" class="d-inline-block align-text-center">
-                    APP NAME HERE
+                    Movie Magic
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,17 +70,38 @@
                 </div>
             </div>
         </nav>
+        <!--secondary nav-->
+        <div class="container mt-4">
+            <div class="row row-cols-1 g-3">
+                <div class="col text-center text-md-start">
+                    <div class="btn-group" role="group" id="btnBar">
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off" checked>
+                        <label for="btnNowPlaying" class="btn btn-outline-warning">Now Playing</label>
+
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off">
+                        <label for="btnPopular" class="btn btn-outline-warning">Popular</label>
+
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnFavorites" autocomplete="off">
+                        <label for="btnFavorites" class="btn btn-outline-warning">Favorites</label>
+                    </div>
+                </div>
+                <div class="col order-first">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Enter a movie title" id="movie-search">
+                        <button class="btn btn-outline-warning">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
 
 
     <main>
         <div class="container mt-5">
-            <h1>APP UI Here</h1>
-            <input id="message" placeholder="Message" class="form-control" type="text">
-            <button id="btn-submit" type="button" class="btn btn-primary mt-2">Display Message</button>
-            <div class="alert alert-danger mt-5 p4 d-none" role="alert" id="alertBox">
-
+            <h1 id="page-title" class="mt-3 text-center display-5">Now Playing</h1>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-3">
+                <!--Movie Cards Go Here-->
             </div>
         </div>
     </main>
@@ -94,7 +115,7 @@
                     <span>&copy;2024</span> <span>Luke Matulis | lmatulis@comcast.net</span>
                 </div>
                 <div class="col text-center">
-                    <img src="/img/myLogos/logo-light.png" width="70">
+                    <img src="/img/tmDBLogo.png" width="120">
                 </div>
                 <div class="col hstack gap-0 justify-content-center justify-content-md-end">
                     <div>
@@ -115,7 +136,8 @@
     <script src="/js/site.js"></script>
 
     <script>
-        document.getElementById("btn-submit").addEventListener("click", getValues2);
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
 
 </body>
