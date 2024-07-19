@@ -33,10 +33,11 @@
     <!--My CSS-->
     <link rel="stylesheet" href="/css/themes.css">
     <link rel="stylesheet" href="/css/site.css">
+    <link rel="stylesheet" href="/css/app.css">
 
 </head>
 
-<body data-cf-theme="gray">
+<body data-cf-theme="purple">
 
     <header>
         <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
@@ -75,10 +76,10 @@
             <div class="row row-cols-1 g-3">
                 <div class="col text-center text-md-start">
                     <div class="btn-group" role="group" id="btnBar">
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off" checked>
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off" onchange="displayNowPlayingMovies()" checked>
                         <label for="btnNowPlaying" class="btn btn-outline-warning">Now Playing</label>
 
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off">
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off" onchange="displayPopularMovies()">
                         <label for="btnPopular" class="btn btn-outline-warning">Popular</label>
 
                         <input type="radio" class="btn-check" name="btnRadio" id="btnFavorites" autocomplete="off">
@@ -145,7 +146,7 @@
                     </div>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
-                    <button class="btn btn-outline-success" data-fav="false">Add Fav</button>
+                    <button class="btn btn-outline-success" data-fav="false" onclick="addFavoriteMovie(this)">Add Fav</button>
                     <button class="btn btn-outline-danger" data-fav="true">Remove Fav</button>
                     <a href="" class="btn btn-primary">More Info</a>
                 </div>

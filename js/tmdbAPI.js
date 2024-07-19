@@ -25,3 +25,57 @@ async function getPopularMovies() {
         return [];
     }
 }
+
+/**
+ * Fetches and returns a list of Now Playing movies currently playing in theaters
+ * @returns {Object} A list of currently playing movies
+ * @throws {Error} if the network response is not ok
+ */
+async function getNowPlayingMovies() {
+    const nowPlayingMoviesURL = `https://api.themoviedb.org/3/movie/now_playing`;
+
+    try {
+        let response = await fetch(nowPlayingMoviesURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let nowPlayingMovies = await response.json();
+        return nowPlayingMovies.results;
+    
+    }catch (error) {
+        console.error(`Now Playing Movies Fetch Error: ${error}`);
+        return [];
+    }
+}
+
+
+/**
+ * 
+ * @param {number} movieId 
+ * @returns return a movie object from TMDB API
+ */
+async function getMovie(movieId) {
+    //https://api.themoviedb.org/3/movie/{movie_id}
+    const movieURL = `https://api.themoviedb.org/3/movie/${movieId}`;
+
+    try {
+        let response = await fetch(movieURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let movie = await response.json();
+        return movie;
+    
+    }catch (error) {
+        console.error(`Get Movies Fetch Error: ${error}`);
+        return null;
+    }
+}
