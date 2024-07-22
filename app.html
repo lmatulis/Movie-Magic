@@ -40,6 +40,7 @@
 <body data-cf-theme="purple">
 
     <header>
+        <!--Main nav-->
         <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/index.html">
@@ -76,10 +77,10 @@
             <div class="row row-cols-1 g-3">
                 <div class="col text-center text-md-start">
                     <div class="btn-group" role="group" id="btnBar">
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off" onchange="displayNowPlayingMovies()" checked>
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off" onclick="displayNowPlayingMovies()" checked>
                         <label for="btnNowPlaying" class="btn btn-outline-warning">Now Playing</label>
 
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off" onchange="displayPopularMovies()">
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off" onclick="displayPopularMovies()">
                         <label for="btnPopular" class="btn btn-outline-warning">Popular</label>
 
                         <input type="radio" class="btn-check" name="btnRadio" id="btnFavorites" autocomplete="off">
@@ -147,7 +148,7 @@
                 </div>
                 <div class="card-footer d-flex justify-content-between">
                     <button class="btn btn-outline-success" data-fav="false" onclick="addFavoriteMovie(this)">Add Fav</button>
-                    <button class="btn btn-outline-danger" data-fav="true">Remove Fav</button>
+                    <button class="btn btn-outline-danger" data-fav="true" onclick="removeFavoriteMovie(this)">Remove Fav</button>
                     <a href="" class="btn btn-primary">More Info</a>
                 </div>
             </div>

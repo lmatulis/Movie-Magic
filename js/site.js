@@ -83,6 +83,18 @@ async function addFavoriteMovie(btn) {
             saveFavoriteMovies(favorites);
         }
     }
+    selectAndClickMovieCategory();
+}
+
+async function removeFavoriteMovie(btn) {
+    let movieId = btn.getAttribute('data-movieid');
+    let favorites = getFavoriteMovies();
+
+    if(favorites) {
+        favorites = favorites.filter(movie => movie.id != movieId);
+        saveFavoriteMovies(favorites);
+    }
+    selectAndClickMovieCategory();
 }
 
 //retrieves local storage data of favorite movies if it exists
@@ -116,4 +128,20 @@ function isFavoriteMovie(movieId) {
     return favoriteMovies.some(movie => movie.id == movieId)
 }
 
+// Find the button bar, locate the selected item, and click it again
+function selectAndClickMovieCategory() {
+    //get all the buttons in the bar
+    //this returns an array of buttons
+    let buttons = document.querySelectorAll('#btnBar .btn-check');
+
+    //find the currently selected button
+    let checkedButton = Array.from(buttons).find(button => button.checked);
+
+    //call the click event on the checked button
+    if(checkedButton) {
+        checkedButton.click();
+    }
+}
+
 /* #endregion favorite movies */
+
