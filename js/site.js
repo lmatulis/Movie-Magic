@@ -1,5 +1,6 @@
-displayNowPlayingMovies();
 
+
+//displays popular movies
 async function displayPopularMovies() {
     let movies = await getPopularMovies();
 
@@ -10,6 +11,7 @@ async function displayPopularMovies() {
     displayMovies(movies);
 }
 
+// Displays now playing movies
 async function displayNowPlayingMovies() {
     let movies = await getNowPlayingMovies();
 
@@ -18,6 +20,80 @@ async function displayNowPlayingMovies() {
     pageTitle.innerHTML = "Now Playing";
 
     displayMovies(movies);
+}
+
+//displays favorite movies from local storage
+async function displayFavoriteMovies() {
+    let movies = getFavoriteMovies();
+    let pageTitle = document.getElementById("page-title");
+    pageTitle.innerHTML = "";
+    pageTitle.innerHTML = "Favorites";
+    displayMovies(movies);
+}
+
+//displays search results
+async function displaySearchResults() {
+    let query = document.getElementById("movie-search").value;
+    
+    let encodedValue = encodeURIComponent(query);
+    let movies = await getMoviesByQuery(encodedValue);
+
+    //another way to change the page title
+    document.getElementById("page-title").innerHTML = `Search Results for: ${query}`;
+
+    displayMovies(movies);
+
+    uncheckButtons();
+    
+}
+
+//displays the details for a given movie
+//the id will be passed by query string
+// used on the movieDetails page
+async function displayMovieDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const defaultMovieId = '550';
+    let movieId = urlParams.get("id") || defaultMovieId;
+
+    let movie = await getMovie(movieId);
+
+    if(!movie) {
+        movieId= defaultMovieId;
+        movie = await getMovie(movieId);
+    }
+
+    //set bg image
+    let movieDetails = document.getElementById("movie-details");
+    let backdrop_path = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`;
+    if(movie.backdrop_path == null) {
+        backdrop_path = '/img/Backdrop.jpg'
+    }
+    movieDetails.style.background = `url(${backdrop_path}), linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.9))`;
+    movieDetails.style.backgroundPosition = 'cover';
+    movieDetails.style.backgroundRepeat = "no-repeat";
+    movieDetails.style.backgroundBlendMode = 'overlay'
+
+    //set poster image
+    let poster_path = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+    if(movie.poster_path == null) {
+        poster_path = `/img/poster.png`;
+    }
+    document.getElementById("movie-poster").src = poster_path;
+
+    //set the title
+    document.getElementById("movie-title").innerHTML = movie.title;
+
+    //display the movie certification
+    document.getElementById("movie-certification").innerHTML = await getMovieRating(movie.id);
+
+    //display the release date
+    document.getElementById("movie-released").innerHTML = (new Date(movie.release_date).toLocaleDateString());
+
+    //display the runtime
+    let minutes = movie.runtime % 60;
+    let hours = (movie.runtime - minutes) / 60;
+    document.getElementById("movie-runtime").textContent = `${hours}h ${minutes}m`
+
 }
 
 function displayMovies(movies) {
@@ -62,9 +138,22 @@ function displayMovies(movies) {
             removeFavButton.style.display = 'none';
         }
 
+        let infoButton = movieCard.querySelector('[data-detail');
+        infoButton.href = `/movieDetails.html?id=${movie.id}`;
+
         movieRow.appendChild(movieCard);
 
     });
+}
+
+function uncheckButtons() {
+    let buttons = document.querySelectorAll('#btnBar .btn-check');
+
+    let checkedButton = Array.from(buttons).find(button => button.checked);
+
+    if(checkedButton) {
+        checkedButton.checked = false;
+    }
 }
 
 /* #region favorite movies */

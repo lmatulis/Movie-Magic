@@ -107,3 +107,29 @@ footer i {
 footer i:hover {
     color: var(--cf-theme-300);
 }
+
+/* #region styles for movieDetails.html */
+#movie-poster {
+    border-radius: 15px;
+    border-color: var(--lm-dark-color);
+    border-width: 2px;
+    border-style: solid;
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+}
+
+#movie-wrapper {
+    backdrop-filter: blur(3px);
+}
+
+#movie-details {
+    color: var(--lm-light-color);
+}
+
+#movie-certification {
+    border: 1px solid white;
+    padding-right: 3px;
+    padding-left: 3px;
+}
+/* #endregion styles for movieDetails.html */
