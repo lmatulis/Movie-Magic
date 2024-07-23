@@ -184,3 +184,24 @@ async function getMovieCredits(movieId) {
         return [];
     }
 }
+
+async function getMovieGenreList() {
+    const movieGenresListURL = `https://api.themoviedb.org/3/genre/movie/list`;
+
+    try {
+        let response = await fetch(movieGenresListURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was on ok");
+
+        let movieGenresList = await response.json();
+        return movieGenresList;
+
+    }catch (error) {
+        console.error(`Get Genre List Fetch Error: ${error}`);
+        return [];
+    }
+}

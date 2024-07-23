@@ -91,6 +91,19 @@
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="Search" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Enter a movie title" id="movie-search">
                         <button class="btn btn-outline-warning" onclick="displaySearchResults()">Search</button>
+
+                        <span class="ms-5">
+                            <div class="btn-group dropend">
+                                <button type="button" class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Genre Filter
+                                </button>
+                                <ul class="dropdown-menu" id="movie-genre-dropdown" data-bs-theme="dark">
+                                    <!-- Dropdown menu links -->
+                                     <li>Action</li>
+                                </ul>
+                            </div>
+                        </span>
+
                     </div>
                 </div>
             </div>
