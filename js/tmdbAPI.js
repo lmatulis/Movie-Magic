@@ -131,6 +131,11 @@ async function getMovieRating(movieId) {
     }
 }
 
+/**
+ * 
+ * @param {*} movieId 
+ * @returns returns a trailer for the movie
+ */
 async function getMovieVideos(movieId) {
     //https://api.themoviedb.org/3/movie/{movie_id}/videos
     const videosURL = `https://api.themoviedb.org/3/movie/${movieId}/videos`;
@@ -150,5 +155,32 @@ async function getMovieVideos(movieId) {
     }catch (error) {
         console.error(`Get Trailer Fetch Error: ${error}`);
         return null;
+    }
+}
+
+/**
+ * 
+ * @param {*} movieId 
+ * @returns cast and crew for a movie
+ */
+async function getMovieCredits(movieId) {
+    //https://api.themoviedb.org/3/movie/{movie_id}/credits
+    const creditsURL = `https://api.themoviedb.org/3/movie/${movieId}/credits`;
+
+    try {
+        let response = await fetch(creditsURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let credits = await response.json();
+        return credits;
+    
+    }catch (error) {
+        console.error(`Get Credits Fetch Error: ${error}`);
+        return [];
     }
 }

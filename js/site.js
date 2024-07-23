@@ -114,6 +114,8 @@ async function displayMovieDetails() {
         document.getElementById("btn-trailer").style.display = 'block';
     }
 
+    //display actor credits for top 10 actors
+    displayCredits(movieId);
 }
 
 function displayMovies(movies) {
@@ -175,6 +177,36 @@ function displayGenres(movie) {
     })
 
     return genresTemplate;
+}
+
+async function displayCredits(movieId) {
+    //get the cast from tmdb 
+    let credits = await getMovieCredits(movieId);
+
+    //pull the top ten actors from the array
+    let topBilledCast = credits.cast.slice(0,10);
+
+    //get the container to drop HTML
+    let slideContainer = document.getElementById("actors-slide-container");
+    slideContainer.innerHTML = "";
+
+    //get the template
+    let actorSlideTemplate = document.getElementById("actor-slide");
+
+    topBilledCast.forEach(actor =>{
+        let slide = actorSlideTemplate.content.cloneNode(true);
+
+        if(actor.profile_path != null) {
+            slide.querySelector("img").src = `https://image.tmdb.org/t/p/w185${actor.profile_path}`;
+        } else {
+            slide.querySelector("img").src = "/img/ProfileImage.jpg"
+        }
+
+        slide.querySelector("[data-name]").textContent = actor.name;
+        slide.querySelector("[data-character]").textContent = actor.character;
+
+        slideContainer.appendChild(slide);
+    });
 }
 
 function uncheckButtons() {
@@ -274,11 +306,11 @@ async function loadVideo() {
     let videos = await getMovieVideos(movieId);
 
     if(videos.length > 0) {
-        let defaultVideo = videos[0]
+        let defaultVideo = videos[0];
         videos = videos.filter(video => video.type == 'Trailer');
         let trailerVideo = videos[0] || defaultVideo;
         document.getElementById("movieModalLabel").textContent = trailerVideo.name;
-        document.getElementById("movie-trailer").src = `https://www.youtube.com/embed/${trailerVideo.key}`
+        document.getElementById("movie-trailer").src = `https://www.youtube.com/embed/${trailerVideo.key}`;
     }
 }
 
