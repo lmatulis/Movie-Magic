@@ -93,6 +93,15 @@
                                     <span id="movie-runtime"></span>
                                     <span id="movie-genres"></span>
                                 </div>
+                                <div id="movie-tagline" class="my-3"></div>
+                                <h5 class="lead fw-bold mt-3">Overview</h5>
+                                <p id="movie-overview"></p>
+                                <div id="movie-rating"></div>
+                                <div id="btn-trailer" class="mt-4">
+                                    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#movie-modal">
+                                        Trailer <i class="bi bi-play"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -123,6 +132,26 @@
             </div>
         </div>
     </footer>
+
+    <!-- Modal -->
+    <div class="modal fade" id="movie-modal" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="movieModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="movie-trailer" src="" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--Template Movie Card-->
     <template id="movie-card-template">
@@ -163,8 +192,18 @@
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     </script>
-
+    
+    <!-- call display data function -->
+    <!-- setup movie trailer -->
     <script>
+        const movieTrailerModal = document.getElementById("movie-modal");
+        //listen for the show.bs.modal event to show video
+        //event on modal pop
+        addEventListener("show.bs.modal", loadVideo);
+
+        //listen for the hide.bs.modal event to stop the video from playing
+        //event on modal dismiss
+        addEventListener("hide.bs.modal", unloadVideo);
         displayMovieDetails();
     </script>
 

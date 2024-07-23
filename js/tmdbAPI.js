@@ -130,3 +130,25 @@ async function getMovieRating(movieId) {
         return "NR";
     }
 }
+
+async function getMovieVideos(movieId) {
+    //https://api.themoviedb.org/3/movie/{movie_id}/videos
+    const videosURL = `https://api.themoviedb.org/3/movie/${movieId}/videos`;
+
+    try {
+        let response = await fetch(videosURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let videos = await response.json();
+        return videos.results;
+    
+    }catch (error) {
+        console.error(`Get Trailer Fetch Error: ${error}`);
+        return null;
+    }
+}

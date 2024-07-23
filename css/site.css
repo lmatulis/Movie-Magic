@@ -132,4 +132,10 @@ footer i:hover {
     padding-right: 3px;
     padding-left: 3px;
 }
+
+#movie-rating {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: white;
+}
 /* #endregion styles for movieDetails.html */
