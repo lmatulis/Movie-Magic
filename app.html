@@ -77,20 +77,38 @@
             <div class="row row-cols-1 g-3">
                 <div class="col text-center text-md-start">
                     <div class="btn-group" role="group" id="btnBar">
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off" onclick="displayNowPlayingMovies()" checked>
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnNowPlaying" autocomplete="off"
+                            onclick="displayNowPlayingMovies()" checked>
                         <label for="btnNowPlaying" class="btn btn-outline-warning">Now Playing</label>
 
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off" onclick="displayPopularMovies()">
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnPopular" autocomplete="off"
+                            onclick="displayPopularMovies()">
                         <label for="btnPopular" class="btn btn-outline-warning">Popular</label>
 
-                        <input type="radio" class="btn-check" name="btnRadio" id="btnFavorites" autocomplete="off" onclick="displayFavoriteMovies()">
+                        <input type="radio" class="btn-check" name="btnRadio" id="btnFavorites" autocomplete="off"
+                            onclick="displayFavoriteMovies()">
                         <label for="btnFavorites" class="btn btn-outline-warning">Favorites</label>
                     </div>
                 </div>
                 <div class="col order-first">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Enter a movie title" id="movie-search">
+                        <input type="text" class="form-control" placeholder="Search" data-bs-toggle="tooltip"
+                            data-bs-placement="top" data-bs-title="Enter a movie title" id="movie-search">
                         <button class="btn btn-outline-warning" onclick="displaySearchResults()">Search</button>
+
+                        <span class="ms-5">
+                            <div class="btn-group dropend">
+                                <button type="button" class="btn btn-outline-warning dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Genre Filter
+                                </button>
+                                <ul class="dropdown-menu" id="movie-genre-dropdown" data-bs-theme="dark">
+                                    <!-- Dropdown menu links -->
+                                    <li>Action</li>
+                                </ul>
+                            </div>
+                        </span>
+
                     </div>
                 </div>
             </div>
@@ -124,7 +142,8 @@
                         <a href="#" class="text-decoration-none"><i class="bi bi-linkedin social-icons p-2"></i></a>
                     </div>
                     <div>
-                        <a href="#" class="text-decoration-none"><i class="bi bi-github social-icons p-2"></i></a>
+                        <a href="https://github.com/lmatulis/Movie-Magic" class="text-decoration-none"><i
+                                class="bi bi-github social-icons p-2"></i></a>
                     </div>
                 </div>
             </div>
@@ -135,7 +154,8 @@
     <template id="movie-card-template">
         <div class="col">
             <div class="card h-100">
-                <img class="card-img-top" alt="Movie Poster" src="https://image.tmdb.org/t/p/w184/qhb1qOilapbapxWQn9jtRCMwXJF.jpg">
+                <img class="card-img-top" alt="Movie Poster"
+                    src="https://image.tmdb.org/t/p/w184/qhb1qOilapbapxWQn9jtRCMwXJF.jpg">
                 <div class="card-body border-top border-1">
                     <div class="card-title fw-bold lh-1">
                         Wonka
@@ -147,8 +167,10 @@
                     </div>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
-                    <button class="btn btn-outline-success" data-fav="false" onclick="addFavoriteMovie(this)">Add Fav</button>
-                    <button class="btn btn-outline-danger" data-fav="true" onclick="removeFavoriteMovie(this)">Remove Fav</button>
+                    <button class="btn btn-outline-success" data-fav="false" onclick="addFavoriteMovie(this)">Add
+                        Fav</button>
+                    <button class="btn btn-outline-danger" data-fav="true" onclick="removeFavoriteMovie(this)">Remove
+                        Fav</button>
                     <a href="" class="btn btn-primary" data-detail>More Info</a>
                 </div>
             </div>
