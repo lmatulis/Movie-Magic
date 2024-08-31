@@ -81,22 +81,653 @@
             <div class="col-12 col-lg-8">
                 <pre class="line-numbers">
                     <code class="language-javascript">
-                        //Get values from the screen and display
-                        function getValues2() {
-                        let message = document.getElementById("message").value
-                        let alertbox = document.getElementById("alertBox")
-                        
-                        alertbox.innerText = message
-                        }
-                        
-                        //document.getElementById("btn-submit").addEventListener("click", getValues2);
+                        //displays popular movies
+async function displayPopularMovies() {
+    let movies = await getPopularMovies();
+
+    let pageTitle = document.getElementById("page-title");
+    pageTitle.innerHTML = "";
+    pageTitle.innerHTML = "Popular";
+
+    displayMovies(movies);
+}
+
+// Displays now playing movies
+async function displayNowPlayingMovies() {
+    let movies = await getNowPlayingMovies();
+
+    let pageTitle = document.getElementById("page-title");
+    pageTitle.innerHTML = "";
+    pageTitle.innerHTML = "Now Playing";
+
+    displayMovies(movies);
+}
+
+//displays favorite movies from local storage
+async function displayFavoriteMovies() {
+    let movies = getFavoriteMovies();
+    let pageTitle = document.getElementById("page-title");
+    pageTitle.innerHTML = "";
+    pageTitle.innerHTML = "Favorites";
+    displayMovies(movies);
+}
+
+//displays search results
+async function displaySearchResults() {
+    let query = document.getElementById("movie-search").value;
+    
+    let encodedValue = encodeURIComponent(query);
+    let movies = await getMoviesByQuery(encodedValue);
+
+    //another way to change the page title
+    document.getElementById("page-title").innerHTML = `Search Results for: ${query}`;
+
+    displayMovies(movies);
+
+    uncheckButtons();
+    
+}
+
+//displays the details for a given movie
+//the id will be passed by query string
+// used on the movieDetails page
+async function displayMovieDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const defaultMovieId = '550';
+    let movieId = urlParams.get("id") || defaultMovieId;
+
+    let movie = await getMovie(movieId);
+
+    if(!movie) {
+        movieId= defaultMovieId;
+        movie = await getMovie(movieId);
+    }
+
+    //set bg image
+    let movieDetails = document.getElementById("movie-details");
+    let backdrop_path = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`;
+    if(movie.backdrop_path == null) {
+        backdrop_path = '/img/Backdrop.jpg'
+    }
+    movieDetails.style.background = `url(${backdrop_path}), linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.9))`;
+    movieDetails.style.backgroundPosition = 'cover';
+    movieDetails.style.backgroundRepeat = "no-repeat";
+    movieDetails.style.backgroundBlendMode = 'overlay'
+
+    //set poster image
+    let poster_path = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+    if(movie.poster_path == null) {
+        poster_path = `/img/poster.png`;
+    }
+    document.getElementById("movie-poster").src = poster_path;
+
+    //set the title
+    document.getElementById("movie-title").innerHTML = movie.title;
+
+    //display the movie certification
+    document.getElementById("movie-certification").innerHTML = await getMovieRating(movie.id);
+
+    //display the release date
+    document.getElementById("movie-released").innerHTML = (new Date(movie.release_date).toLocaleDateString());
+
+    //display the runtime
+    let minutes = movie.runtime % 60;
+    let hours = (movie.runtime - minutes) / 60;
+    document.getElementById("movie-runtime").textContent = `${hours}h ${minutes}m`
+
+    //display the movie genres
+    document.getElementById("movie-genres").innerHTML = displayGenres(movie);
+
+    //display the tagline
+    document.getElementById("movie-tagline").innerText = movie.tagline;
+    
+    //display the overview
+    document.getElementById("movie-overview").innerText = movie.overview;
+
+    //display the user rating
+    document.getElementById("movie-rating").innerHTML = `${(movie.vote_average * 10).toFixed(0)}% User Score`;
+
+    //load the trailer
+    let videos = await getMovieVideos(movieId);
+    if(videos.length < 1){
+        document.getElementById("btn-trailer").style.display = 'none';
+    } else {
+        document.getElementById("btn-trailer").style.display = 'block';
+    }
+
+    //display actor credits for top 10 actors
+    displayCredits(movieId);
+}
+
+function displayMovies(movies) {
+    //get the movie card template
+    const movieCardTemplate = document.getElementById("movie-card-template");
+    //find the movie row element where all the movies go
+    const movieRow = document.getElementById("movie-row");
+    movieRow.innerHTML = "";
+    
+    movies.forEach(movie => {
+        
+        let movieCard = document.importNode(movieCardTemplate.content, true);
+
+        //modify the card for the current movie
+        let titleElement = movieCard.querySelector('.card-body > .card-title');
+        titleElement.textContent = movie.title;
+
+        let descriptionElement = movieCard.querySelector('.card-text');
+        let date = new Date(movie.release_date)
+        descriptionElement.textContent = date.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+
+        let imageElement = movieCard.querySelector('.card-img-top');
+        let poster_path = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        if(movie.poster_path == null) {
+            poster_path = "/img/poster.png";
+        }
+
+        imageElement.setAttribute('src', poster_path);
+
+        //set the movie card fav buttons correctly
+        let removeFavButton = movieCard.querySelector('[data-fav="true"]');
+        removeFavButton.setAttribute('data-movieid', movie.id);
+
+        let addFavButton = movieCard.querySelector('[data-fav="false"]');
+        addFavButton.setAttribute('data-movieid', movie.id);
+
+        if(isFavoriteMovie(movie.id)){
+            addFavButton.style.display = 'none';
+            removeFavButton.style.display = 'block';
+        } else {
+            addFavButton.style.display = 'block';
+            removeFavButton.style.display = 'none';
+        }
+
+        let infoButton = movieCard.querySelector('[data-detail');
+        infoButton.href = `/movieDetails.html?id=${movie.id}`;
+
+        movieRow.appendChild(movieCard);
+
+    });
+}
+
+function displayGenres(movie) {
+
+    let genresTemplate = '';
+
+    movie.genres.forEach(genre => {
+        genresTemplate += `<span class="badge text-bg-primary me-1">${genre.name}</span>`;
+    })
+
+    return genresTemplate;
+}
+
+async function displayCredits(movieId) {
+    //get the cast from tmdb 
+    let credits = await getMovieCredits(movieId);
+
+    //pull the top ten actors from the array
+    let topBilledCast = credits.cast.slice(0,10);
+
+    //get the container to drop HTML
+    let slideContainer = document.getElementById("actors-slide-container");
+    slideContainer.innerHTML = "";
+
+    //get the template
+    let actorSlideTemplate = document.getElementById("actor-slide");
+
+    topBilledCast.forEach(actor =>{
+        let slide = actorSlideTemplate.content.cloneNode(true);
+
+        if(actor.profile_path != null) {
+            slide.querySelector("img").src = `https://image.tmdb.org/t/p/w185${actor.profile_path}`;
+        } else {
+            slide.querySelector("img").src = "/img/ProfileImage.jpg"
+        }
+
+        slide.querySelector("[data-name]").textContent = actor.name;
+        slide.querySelector("[data-character]").textContent = actor.character;
+
+        slideContainer.appendChild(slide);
+    });
+}
+
+function uncheckButtons() {
+    let buttons = document.querySelectorAll('#btnBar .btn-check');
+
+    let checkedButton = Array.from(buttons).find(button => button.checked);
+
+    if(checkedButton) {
+        checkedButton.checked = false;
+    }
+}
+
+/* #region favorite movies */
+
+async function addFavoriteMovie(btn) {
+    let movieId = btn.getAttribute('data-movieid');
+    let favorites = getFavoriteMovies();
+    let duplicateMovie = favorites.find(movie => movie.id == movieId);
+
+    if(duplicateMovie == undefined) {
+        let newFavorite = await getMovie(movieId);
+
+        if(newFavorite != undefined) {
+            favorites.push(newFavorite);
+
+            saveFavoriteMovies(favorites);
+        }
+    }
+    selectAndClickMovieCategory();
+}
+
+async function removeFavoriteMovie(btn) {
+    let movieId = btn.getAttribute('data-movieid');
+    let favorites = getFavoriteMovies();
+
+    if(favorites) {
+        favorites = favorites.filter(movie => movie.id != movieId);
+        saveFavoriteMovies(favorites);
+    }
+    selectAndClickMovieCategory();
+}
+
+//retrieves local storage data of favorite movies if it exists
+function getFavoriteMovies(){
+    let favoriteMovies = localStorage.getItem("mm-favorite-movies");
+
+    if(favoriteMovies == null) {
+        favoriteMovies = [];
+        saveFavoriteMovies(favoriteMovies);
+    } else {
+        favoriteMovies = JSON.parse(favoriteMovies);
+    }
+
+    return favoriteMovies;
+}
+
+//save selected movie to local storage
+function saveFavoriteMovies(movies) {
+    let moviesJSON = JSON.stringify(movies);
+    localStorage.setItem("mm-favorite-movies", moviesJSON)
+}
+
+
+function isFavoriteMovie(movieId) {
+    let favoriteMovies = getFavoriteMovies();
+
+    if(!favoriteMovies){
+        return false;
+    }
+
+    return favoriteMovies.some(movie => movie.id == movieId)
+}
+
+// Find the button bar, locate the selected item, and click it again
+function selectAndClickMovieCategory() {
+    //get all the buttons in the bar
+    //this returns an array of buttons
+    let buttons = document.querySelectorAll('#btnBar .btn-check');
+
+    //find the currently selected button
+    let checkedButton = Array.from(buttons).find(button => button.checked);
+
+    //call the click event on the checked button
+    if(checkedButton) {
+        checkedButton.click();
+    }
+}
+
+/* #endregion favorite movies */
+
+//load trailer
+async function loadVideo() {
+    let movieId = new URLSearchParams(window.location.search);
+    const defaultMovieId = '550';
+    movieId = movieId.get("id") || defaultMovieId;
+
+    let videos = await getMovieVideos(movieId);
+
+    if(videos.length > 0) {
+        let defaultVideo = videos[0];
+        videos = videos.filter(video => video.type == 'Trailer');
+        let trailerVideo = videos[0] || defaultVideo;
+        document.getElementById("movieModalLabel").textContent = trailerVideo.name;
+        document.getElementById("movie-trailer").src = `https://www.youtube.com/embed/${trailerVideo.key}`;
+    }
+}
+
+async function unloadVideo() {
+    document.getElementById("movie-trailer").src = "";
+}
                     </code>
                 </pre>
+
+
+
+                <pre class="line-numbers mt-5">
+                                    <code class="language-javascript">
+                                        /**
+ * Fetches and returns a list of popular movies currently playing in theaters
+ * @returns {Object} A list of currently playing movies
+ * @throws {Error} If the network response is not ok
+ */
+async function getPopularMovies() {
+    const popularMoviesURL = `https://api.themoviedb.org/3/movie/popular`;
+
+    try{
+        let response = await fetch(popularMoviesURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        })
+        
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let popularMovies = await response.json();
+        return popularMovies.results;
+
+    } catch (error) {
+        console.error(`Popular Movies Fetch Error: ${error}`)
+        return [];
+    }
+}
+
+/**
+ * Fetches and returns a list of Now Playing movies currently playing in theaters
+ * @returns {Object} A list of currently playing movies
+ * @throws {Error} if the network response is not ok
+ */
+async function getNowPlayingMovies() {
+    const nowPlayingMoviesURL = `https://api.themoviedb.org/3/movie/now_playing`;
+
+    try {
+        let response = await fetch(nowPlayingMoviesURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let nowPlayingMovies = await response.json();
+        return nowPlayingMovies.results;
+    
+    }catch (error) {
+        console.error(`Now Playing Movies Fetch Error: ${error}`);
+        return [];
+    }
+}
+
+async function getMoviesByQuery(query) {
+    //https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1
+    const moviesByQueryURL = `https://api.themoviedb.org/3/search/movie?query=${query}`;
+
+    try {
+        let response = await fetch(moviesByQueryURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let moviesByQuery = await response.json();
+        return moviesByQuery.results;
+    
+    }catch (error) {
+        console.error(`Search Movies Fetch Error: ${error}`);
+        return [];
+    }
+}
+
+
+
+
+/**
+ * 
+ * @param {number} movieId 
+ * @returns return a movie object from TMDB API
+ */
+async function getMovie(movieId) {
+    //https://api.themoviedb.org/3/movie/{movie_id}
+    const movieURL = `https://api.themoviedb.org/3/movie/${movieId}`;
+
+    try {
+        let response = await fetch(movieURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let movie = await response.json();
+        return movie;
+    
+    }catch (error) {
+        console.error(`Get Movies Fetch Error: ${error}`);
+        return null;
+    }
+}
+
+async function getMovieRating(movieId) {
+    const movieURL = `https://api.themoviedb.org/3/movie/${movieId}/release_dates`;
+
+    try {
+        let response = await fetch(movieURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let releaseDates = await response.json();
+        let usReleaseDates = releaseDates.results.find(rd => rd.iso_3166_1 === 'US');
+
+        if(!usReleaseDates) return "NR";
+
+        let releaseDate = usReleaseDates.release_dates.find(rd => rd.certification !='');
+
+        return releaseDate ? releaseDate.certification : "NR";
+    
+    }catch (error) {
+        console.error(`Get Movies Fetch Error: ${error}`);
+        return "NR";
+    }
+}
+
+/**
+ * 
+ * @param {*} movieId 
+ * @returns returns a trailer for the movie
+ */
+async function getMovieVideos(movieId) {
+    //https://api.themoviedb.org/3/movie/{movie_id}/videos
+    const videosURL = `https://api.themoviedb.org/3/movie/${movieId}/videos`;
+
+    try {
+        let response = await fetch(videosURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let videos = await response.json();
+        return videos.results;
+    
+    }catch (error) {
+        console.error(`Get Trailer Fetch Error: ${error}`);
+        return null;
+    }
+}
+
+/**
+ * 
+ * @param {*} movieId 
+ * @returns cast and crew for a movie
+ */
+async function getMovieCredits(movieId) {
+    //https://api.themoviedb.org/3/movie/{movie_id}/credits
+    const creditsURL = `https://api.themoviedb.org/3/movie/${movieId}/credits`;
+
+    try {
+        let response = await fetch(creditsURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was not ok");
+
+        let credits = await response.json();
+        return credits;
+    
+    }catch (error) {
+        console.error(`Get Credits Fetch Error: ${error}`);
+        return [];
+    }
+}
+
+async function getMovieGenreList() {
+    const movieGenresListURL = `https://api.themoviedb.org/3/genre/movie/list`;
+
+    try {
+        let response = await fetch(movieGenresListURL, {
+            headers:{
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+
+        if(!response.ok) throw new Error("Network response was on ok");
+
+        let movieGenresList = await response.json();
+        return movieGenresList;
+
+    }catch (error) {
+        console.error(`Get Genre List Fetch Error: ${error}`);
+        return [];
+    }
+}
+                                    </code>
+                                </pre>
             </div>
             <div class="col-12 col-lg-4">
-                <p>The code is structured in one function</p>
-                <h5>getValues2</h5>
-                <p>Displays the user message</p>
+                <h4>site.js</h4>
+                <p>
+                    This JavaScript code is part of a web application that displays movie information, including popular
+                    and currently
+                    playing movies, search results, movie details, and user-selected favorite movies. The application
+                    relies on a series of
+                    asynchronous functions to fetch movie data, using an API, and dynamically update the webpage with
+                    relevant
+                    information. This script provides a dynamic and interactive user experience by fetching, displaying,
+                    and managing movie data and user
+                    preferences, demonstrating an efficient use of JavaScript's asynchronous capabilities and DOM
+                    manipulation techniques to
+                    build a rich, movie-related web application.
+                </p>
+                <h5>displayPopularMovies() and displayNowPlayingMovies()</h5>
+                <p>
+                    These functions are responsible for fetching popular and currently playing movies, respectively.
+                    They update the page title
+                    and call displayMovies() to render the movie data onto the webpage.
+                </p>
+                <h5>displayFavoriteMovies()</h5>
+                <p>
+                    Retrieves favorite movies stored in the browser's localStorage, setting the page title accordingly
+                    and displaying the
+                    stored movies.
+                </p>
+                <h5>displaySearchResults()</h5>
+                <p>
+                    Handles movie searches. It captures the search query from a text input, encodes it for safe
+                    transmission, fetches search
+                    results, updates the page title to show the query, and then displays the results using
+                    displayMovies().
+                </p>
+                <h5>displayMovieDetails()</h5>
+                <p>
+                    This function is more comprehensive, fetching detailed information about a specific movie based on
+                    an ID passed in the URL.
+                    It updates various elements on the movie details page, including setting background and poster
+                    images, displaying movie
+                    title, certification, release date, runtime, genres, tagline, overview, user rating, and even
+                    loading a trailer if
+                    available. It also shows the top ten billed actors using the displayCredits function, which fetches
+                    and displays actors’
+                    details.
+                </p>
+                <h5>displayMovies()</h5>
+                <p>
+                    This function is used throughout the script to take a list of movies and dynamically create HTML
+                    content for each movie,
+                    using a template to ensure consistent layout. This function sets up movie cards, including titles,
+                    release dates, poster
+                    images, and favorite buttons. The buttons' states are set based on whether the movie is marked as a
+                    favorite or not.
+                </p>
+                <h5>addFavoriteMovie(), removeFavoriteMovie(), getFavoriteMovies(), saveFavoriteMovies(),
+                    isFavoriteMovie(), and selectAndClickMovieCategory()</h5>
+                <p>
+                    These manage the addition and removal of movies to a user's list of favorites, stored in
+                    localStorage. The
+                    isFavoriteMovie() function checks if a movie is already marked as a favorite. When a change is made
+                    to the favorite movies
+                    list, the selectAndClickMovieCategory() function refreshes the current view to reflect the update.
+                </p>
+                <h5>loadVideo() and unloadVideo()</h5>
+                <p>
+                    The loadVideo() function loads a movie trailer video into a modal dialog when the user clicks to
+                    view a trailer. It
+                    fetches videos for a movie, prioritizing trailers, and sets the video’s src attribute to load it in
+                    an embedded YouTube
+                    player. The unloadVideo() function clears the video player when the trailer modal is closed.
+                </p>
+
+                <hr />
+
+                <h4>tmdbAPI.js</h4>
+                <p>
+                    This file contains a set of asynchronous functions that interact with the TMDB (The Movie Database)
+                    API to retrieve various types of movie-related data. Each function uses the fetch API to make
+                    network requests, includes error handling to catch and log errors, and returns
+                    either the requested data or a fallback value if an error occurs. These functions rely on an API
+                    key, passed through the
+                    Authorization header, to authenticate requests with the TMDB API.
+                </p>
+                <h5>getPopularMovies() and getNowPlayingMovies()</h5>
+                <p>
+                    These functions fetch lists of popular and currently playing movies, respectively, using specific
+                    API endpoints.
+                </p>
+                <h5>getMoviesByQuery()</h5>
+                <p>
+                    This function allows users to search for movies by a query string, making it suitable for
+                    implementing a search feature.
+
+                </p>
+                <h5>getMovie()</h5>
+                <p>
+                    This function retrieves detailed information about a specific movie by its ID.
+                </p>
+                <h5>getMovieRating()</h5>
+                <p>
+                    This function fetches the certification rating for a movie, focusing on U.S. release dates.
+                </p>
+                <h5>getMovieVideos()</h5>
+                <p>
+                    This function retrieves video content related to a movie, such as trailers.
+                </p>
+                <h5>getMovieCredits()</h5>
+                <p>
+                    This function fetches the cast and crew details.
+                </p>
+                <h5>getMovieGenreList()</h5>
+                <p>
+                    This function obtains a list of movie genres available in TMDB.
+                </p>
             </div>
         </div>
     </main>
@@ -117,7 +748,7 @@
                         <a href="#" class="text-decoration-none"><i class="bi bi-linkedin social-icons p-2"></i></a>
                     </div>
                     <div>
-                        <a href="#" class="text-decoration-none"><i class="bi bi-github social-icons p-2"></i></a>
+                        <a href="https://github.com/lmatulis/Movie-Magic" class="text-decoration-none"><i class="bi bi-github social-icons p-2"></i></a>
                     </div>
                 </div>
             </div>
@@ -127,16 +758,16 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script>
+        </script>
 
     <!-- Prism JS -->
-     <script src="/js/prism.js"></script>
+    <script src="/js/prism.js"></script>
     <script>Prism.plugins.NormalizeWhitespace.setDefualts({
-        'remove-trailing': true,
-        'remove-indent': true,
-        'left-trim': true,
-        'right-trim': true
-    })</script>
+            'remove-trailing': true,
+            'remove-indent': true,
+            'left-trim': true,
+            'right-trim': true
+        })</script>
 </body>
 
 </html>
